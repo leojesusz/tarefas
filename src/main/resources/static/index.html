@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Minhas Tarefas</title>
+</head>
+<body class="bg-slate-100 p-10">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-slate-800 mb-6">Minhas Tarefas</h1>
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+            <input id="titulo" type="text" placeholder="Título da tarefa..." class="w-full p-2 border rounded mb-2">
+            <input id="desc" type="text" placeholder="Descrição..." class="w-full p-2 border rounded mb-4">
+            <button onclick="adicionar()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700">Adicionar Tarefa</button>
+        </div>
+
+        <div id="lista" class="space-y-4"></div>
+    </div>
+
+    <script>
+        function carregarTarefas() {
+            fetch('/tarefas')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('lista');
+                    container.innerHTML = data.map(t => `
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-xl font-semibold text-slate-700">${t.titulo}</h2>
+                                <p class="text-slate-500">${t.descricao || ''}</p>
+                            </div>
+                            <button onclick="deletar(${t.id})" class="text-red-500 hover:text-red-700 font-bold">Excluir</button>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        function adicionar() {
+            const tarefa = { titulo: document.getElementById('titulo').value, descricao: document.getElementById('desc').value };
+            fetch('/tarefas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tarefa)
+            }).then(() => {
+                document.getElementById('titulo').value = '';
+                document.getElementById('desc').value = '';
+                carregarTarefas();
+            });
+        }
+
+        function deletar(id) {
+            fetch(`/tarefas/${id}`, { method: 'DELETE' }).then(() => carregarTarefas());
+        }
+
+        carregarTarefas();
+    </script>
+</body>
+</html>
