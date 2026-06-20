@@ -1,8 +1,7 @@
-# Estágio 1: Compilar o código
-FROM eclipse-temurin:17-jdk-alpine AS build
+# Estágio 1: Compilar o código usando uma imagem com Maven
+FROM maven:3.8.5-openjdk-17 AS build
 COPY . .
-# Adicionamos o chmod +x aqui para dar permissão ao arquivo
-RUN chmod +x mvnw && ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Estágio 2: Rodar o projeto
 FROM eclipse-temurin:17-jdk-alpine
